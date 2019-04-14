@@ -1,0 +1,14 @@
+﻿{% extends "base.html" %}
+{% block content %}
+    <head>
+        <h2>Страница админинистратора</h2>
+    </head>
+    <body>
+        {% for user in users %}
+        <div class="alert alert-dark" role="alert">
+            <h1> {{user[0]}} </h1>
+            <div> Количество мемов: {{user[1]}} </div>
+        </div>
+    {% endfor %}
+    </body>
+{% endblock %}

@@ -1,0 +1,32 @@
+﻿{% extends "base.html" %}
+
+
+{% block content %}
+
+    <div class="alert alert-dark" role="alert">
+        <form method="POST" enctype="multipart/form-data" novalidate>
+            {{ form.hidden_tag() }}
+            <p>
+                {{ form.title.label }}<br>
+                {{ form.title }}<br>
+                {% for error in form.title.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                {% endfor %}
+            </p>
+            <p>
+                {{ form.content.label }}<br>
+                {{ form.content }}<br>
+                {% for error in form.content.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                {% endfor %}
+                {{ form.photo.label }}<br>
+                {{ form.photo }}<br>
+            </p>
+            <p>{{ form.submit() }}</p>
+        </form>
+        </div>
+{% endblock %}

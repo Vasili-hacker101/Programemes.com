@@ -1,0 +1,15 @@
+﻿{% extends "base.html" %}
+{% block content %}
+
+    <body>
+    <h2>Привет, {{username}}</h2>
+        <a class="btn btn-primary btn-sm" href="/add_news" role="button">Добавить мем</a>
+        {% for item in news %}
+            <div class="alert alert-dark" role="alert">
+                <h2>{{item[1]}}</h2>
+                <div>{{item[2]}}</div>
+                <a class="btn btn-primary btn-sm" href="/delete_news/{{item[0]}}" role="button">Удалить мем</a>
+            </div>
+        {% endfor %}
+    </body>
+{% endblock %}

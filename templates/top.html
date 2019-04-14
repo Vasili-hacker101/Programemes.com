@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block components %}
+{% if "username" not in session %}
+            <div class="btn-group my-2 my-lg-0 mr-auto" role="group" tabindex="-1" aria-label="Button group with nested dropdown">
+                <a class="btn btn-success" href="/login" role="button">Войти</a>
+                <a class="btn btn-success" href="/register" role="button">Регистрация</a>
+            </div>
+            {% else %}
+             <li class="nav-item dropdown mr-auto">
+
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {{session['username']}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="/user_page">Личный кабинет</a>
+                    <a class="dropdown-item" href="#">Профиль</a>
+                <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="/logout">Выход</a>
+                </div>
+             </li>
+            <form class="form-inline my-2 my-lg-0">
+                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            </form>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+    {% for item in top %}
+    <div class="alert alert-dark" role="alert">
+        <h1>{{users[item[3]]}}</h1>
+        <h2>{{item[1]}}</h2>
+        <div>{{item[2]}}</div>
+
+        <img src="fu.jpg" alt="Нет картинки">
+
+        <div> Рейтинг {{item[5]}}</div>
+    </div>
+    {% endfor %}
+{% endblock %}
