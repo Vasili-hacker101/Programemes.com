@@ -29,16 +29,15 @@ class NewsModel:
                              content VARCHAR(1000),
                              user_id INTEGER,
                              n_date TEXT,
-                             likes INTEGER,
-                             has_image BOOLEAN)''')
+                             likes INTEGER)''')
         cursor.close()
         self.connection.commit()
 
-    def insert(self, title, content, has_image, user_id):
+    def insert(self, title, content, user_id):
         cursor = self.connection.cursor()
         cursor.execute('''INSERT INTO news 
-                          (title, content, user_id, n_date, likes, has_image) 
-                          VALUES (?, ?, ?, DATETIME('now'), 0, ?)''', (title, content, str(user_id), has_image))
+                          (title, content, user_id, n_date, likes) 
+                          VALUES (?, ?, ?, DATETIME('now'), 0)''', (title, content, str(user_id)))
         cursor.close()
         self.connection.commit()
 
@@ -140,7 +139,3 @@ class UsersModel:
                        (user_name, password_hash))
         row = cursor.fetchone()
         return (True, row[0]) if row else (False,)
-
-
-
-

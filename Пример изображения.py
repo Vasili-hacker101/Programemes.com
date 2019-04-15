@@ -12,6 +12,7 @@ def index():
 
 @app.route('/image_sample')
 def image():
+    print(url_for('static', filename='img/sample_image.jpeg'))
     return f'''<h1>Фото:<h1> <img src="{url_for('static', filename='img/sample_image.jpeg')}" alt="картинки нет">'''
     #return f'''<h1>Фото:<h1> <img src="static/img/sample_image.jpeg" alt="картинки нет">'''
 

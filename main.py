@@ -21,14 +21,20 @@ class AddNewsForm(FlaskForm):
     submit = SubmitField('Добавить')
 
 
+class SearchForm(FlaskForm):
+    search = StringField('', validators=[DataRequired()])
+    submit = SubmitField('Поиск')
+
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
-app.config['UPLOAD_FOLDER'] = "users_data"
+app.config['UPLOAD_FOLDER'] = "static/img"
 db = DB()
 news = NewsModel(db.get_connection())
 news = news.init_table()
 users = UsersModel(db.get_connection())
 users = users.init_table()
+id = 0
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -98,7 +104,11 @@ def index():
     for i in users:
         users_dict[i[0]] = i[1]
 
-    return render_template('index.html', news=news, users=users_dict)
+    form = SearchForm()
+    if form.validate_on_submit():
+        return redirect(f'/index/{form.search.data}')
+
+    return render_template('index.html', news=news, users=users_dict, form=form)
 
 
 @app.route('/index/<string:title>', methods=['GET', 'POST'])
@@ -110,8 +120,11 @@ def index_search(title):
     users_dict = dict()
     for i in users:
         users_dict[i[0]] = i[1]
-
-    return render_template('index.html', news=news, users=users_dict)
+    form = SearchForm()
+    search = form.search.data
+    if form.validate_on_submit():
+        return redirect(f'/index/{search}')
+    return render_template('index.html', news=news, users=users_dict, form=form)
 
 
 @app.route('/logout')
@@ -123,6 +136,7 @@ def logout():
 
 @app.route('/add_news', methods=['GET', 'POST'])
 def add_news():
+    global id
     if 'username' not in session:
         return redirect('/login')
     form = AddNewsForm(CombinedMultiDict((request.files, request.form)))
@@ -130,13 +144,13 @@ def add_news():
         title = form.title.data
         content = form.content.data
         f = form.photo.data
-        has_image = False
+        id += 1
         nm = NewsModel(db.get_connection())
         if f:
-            has_image = True
-            f.save(os.path.join(app.config['UPLOAD_FOLDER'], f"{nm.get_all()[-1][0]}.jpg"))
+            extension = f.filename.split(".")[1]
+            f.save(os.path.join(app.config['UPLOAD_FOLDER'], f"{id}.jpg"))
 
-        nm.insert(title, content, has_image, session['user_id'])
+        nm.insert(title, content, session['user_id'])
 
         return redirect("/user_page")
     return render_template('add_news.html',
@@ -177,10 +191,12 @@ def dislike_news(news_id):
 
 @app.route('/delete_news/<int:news_id>', methods=['GET'])
 def delete_news(news_id):
+    global id
     if 'username' not in session:
         return redirect('/login')
     nm = NewsModel(db.get_connection())
     nm.delete(news_id)
+    id -= 1
     return redirect("/index")
 
 

@@ -19,11 +19,22 @@
                     <a class="dropdown-item" href="/logout">Выход</a>
                 </div>
              </li>
-            <form class="form-inline my-2 my-lg-0">
-                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-            </form>
+
+
+
     {% endif %}
+    <form action="" method="post" novalidate>
+     {{ form.hidden_tag() }}
+                <p>
+                    {{ form.search }}<br>
+                    {% for error in form.search.errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                    {{ form.submit() }}
+                </p>
+        </form>
 {% endblock %}
 
 {% block content %}
@@ -33,7 +44,7 @@
         <h2>{{item[1]}}</h2>
         <div>{{item[2]}}</div>
 
-        <img src="fu.jpg" alt="Нет картинки">
+        <img src="/static/img/{{item[0]}}.jpg" alt=" ">
 
         <div> Рейтинг {{item[5]}}</div>
         <div class="btn-group" role="group" aria-label="Second group">
