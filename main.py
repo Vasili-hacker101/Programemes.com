@@ -1,7 +1,6 @@
 from flask_wtf import FlaskForm
-from flask import Flask, redirect, session, render_template, request, url_for
+from flask import Flask, redirect, session, render_template, request
 from wtforms import StringField, SubmitField, PasswordField, FileField, TextAreaField
-from werkzeug.utils import secure_filename
 from wtforms.validators import DataRequired
 from werkzeug.datastructures import CombinedMultiDict
 from db_2 import *
@@ -34,11 +33,13 @@ news = NewsModel(db.get_connection())
 news = news.init_table()
 users = UsersModel(db.get_connection())
 users = users.init_table()
+likes = LikesModel(db.get_connection())
+likes.init_table()
 id = 0
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-
+    error = ""
     form = LoginForm()
     if form.validate_on_submit():
         user_name = form.username.data
@@ -53,20 +54,29 @@ def login():
             if user_name == "admin" and password == "admin_password":
                 return redirect("/admin")
             return redirect("/index")
-    return render_template('login_on_server.html', title='Авторизация', form=form)
+        else:
+            error = "Неправильный логин или пароль"
+    return render_template('login_on_server.html', title='Авторизация', form=form, login_error=error)
 
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = LoginForm()
+    error = ""
     if form.validate_on_submit():
         user_name = form.username.data
         password = form.password.data
         user_model = UsersModel(db.get_connection())
         user_model.init_table()
-        user_model.insert(user_name, password)
-        return redirect("/login")
-    return render_template('register_on_server.html', form=form)
+        users = user_model.get_all()
+        for user in users:
+            if user[1] == user_name:
+                error = "Такой логин уже есть!"
+                break
+        else:
+            user_model.insert(user_name, password)
+            return redirect("/login")
+    return render_template('register_on_server.html', form=form, login_error=error)
 
 
 @app.route('/admin')
@@ -99,6 +109,8 @@ def index():
     news = NewsModel(db.get_connection())
     news = news.get_all()
     user_model = UsersModel(db.get_connection())
+    likes_model = LikesModel(db.get_connection())
+    likes_model.init_table()
     users = user_model.get_all()
     users_dict = dict()
     for i in users:
@@ -173,19 +185,19 @@ def show_top():
 def like_news(news_id):
     if 'username' not in session:
         return redirect('/login')
+    user = session['user_id']
     nm = NewsModel(db.get_connection())
-    likes = nm.get(news_id)[5]
-    nm.redact(news_id, None, None, likes + 1)
-    return redirect("/index")
+    lk = LikesModel(db.get_connection())
+    s = lk.get(news_id, user)
 
-
-@app.route('/dislike_news/<int:news_id>', methods=['GET'])
-def dislike_news(news_id):
-    if 'username' not in session:
-        return redirect('/login')
-    nm = NewsModel(db.get_connection())
     likes = nm.get(news_id)[5]
-    nm.redact(news_id, None, None, likes - 1)
+    print(s, likes)
+    if s > 0:
+        nm.redact(news_id, likes - 1)
+        lk.insert(news_id, user, -1)
+    else:
+        nm.redact(news_id, likes + 1)
+        lk.insert(news_id, user, 1)
     return redirect("/index")
 
 

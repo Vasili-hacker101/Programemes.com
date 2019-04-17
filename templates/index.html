@@ -19,9 +19,6 @@
                     <a class="dropdown-item" href="/logout">Выход</a>
                 </div>
              </li>
-
-
-
     {% endif %}
     <form action="" method="post" novalidate>
      {{ form.hidden_tag() }}
@@ -48,10 +45,8 @@
 
         <div> Рейтинг {{item[5]}}</div>
         <div class="btn-group" role="group" aria-label="Second group">
-            <a class="btn btn-primary" href="http://localhost:8080/like_news/{{item[0]}}" role="button">Like</a>
-            <a class="btn btn-primary" href="http://localhost:8080/dislike_news/{{item[0]}}" role="button">Dislike</a>
+            <a class="btn btn-primary" href="/like_news/{{item[0]}}" role="button">Like</a>
         </div>
-
     </div>
     {% endfor %}
 {% endblock %}

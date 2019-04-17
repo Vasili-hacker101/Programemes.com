@@ -81,17 +81,9 @@ class NewsModel:
         cursor.close()
         self.connection.commit()
 
-    def redact(self, news_id, title, content, likes):
-        if not title:
-            title = self.get(news_id)[1]
-
-        if not content:
-            content = self.get(news_id)[2]
-
-        if not likes:
-            likes = self.get(news_id)[5]
+    def redact(self, news_id, likes):
         cursor = self.connection.cursor()
-        cursor.execute('''UPDATE news SET title = ?, content = ?, likes = ? WHERE id = ?''', (title, content, likes, news_id))
+        cursor.execute('''UPDATE news SET likes = ? WHERE id = ?''', (likes, news_id))
         cursor.close()
         self.connection.commit()
 
@@ -139,3 +131,38 @@ class UsersModel:
                        (user_name, password_hash))
         row = cursor.fetchone()
         return (True, row[0]) if row else (False,)
+
+
+class LikesModel:
+    def __init__(self, connection):
+        self.connection = connection
+
+    def get_connection(self):
+        return self.connection
+
+    def init_table(self):
+        cursor = self.connection.cursor()
+        cursor.execute('''CREATE TABLE IF NOT EXISTS likes
+                            (news_id INTEGER,
+                             user_id INTEGER,
+                             num_like INTEGER)''')
+        cursor.close()
+        self.connection.commit()
+
+    def insert(self, news_id, user_id, like):
+        cursor = self.connection.cursor()
+        cursor.execute('''INSERT INTO likes 
+                          (news_id, user_id, num_like) 
+                          VALUES (?, ?, ?)''', (str(news_id), str(user_id), str(like)))
+        cursor.close()
+        self.connection.commit()
+
+    def get(self, news_id, user_id):
+        cursor = self.connection.cursor()
+#        cursor.execute("SELECT SUM(like_num) FROM likes WHERE news_id = ? AND user_id = ?", (str(news_id), str(user_id)))
+        cursor.execute("SELECT SUM(num_like) FROM likes WHERE news_id = ? and user_id = ?", (str(news_id), str(user_id)))
+
+        row = cursor.fetchone()[0]
+        if row:
+            return row
+        return 0
